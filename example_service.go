@@ -21,5 +21,5 @@ func NewExampleService(logger *log.Logger) exampleservice.Service {
 // SayHello implements Say Hello.
 func (s *exampleServicesrvc) SayHello(ctx context.Context) (res string, err error) {
 	s.logger.Print("exampleService.Say Hello")
-	return
+	return "Hello world!", nil
 }

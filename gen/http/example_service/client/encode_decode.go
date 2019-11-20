@@ -50,7 +50,7 @@ func DecodeSayHelloResponse(decoder func(*http.Response) goahttp.Decoder, restor
 			defer resp.Body.Close()
 		}
 		switch resp.StatusCode {
-		case http.StatusNoContent:
+		case http.StatusOK:
 			var (
 				body string
 				err  error

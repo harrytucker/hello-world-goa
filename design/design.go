@@ -30,6 +30,9 @@ var _ = Service("Example Service", func() {
 		HTTP(func() {
 			// route and method declaration
 			GET("/hello/world")
+
+			// define response code
+			Response(StatusOK) // 200
 		})
 
 		GRPC(func() {
