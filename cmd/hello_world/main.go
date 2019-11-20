@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	helloworld "github.com/harrytucker/hello-world-goa"
-	exampleservice "github.com/harrytucker/hello-world-goa/gen/example_service"
+	example "github.com/harrytucker/hello-world-goa/gen/example"
 )
 
 func main() {
@@ -38,19 +38,19 @@ func main() {
 
 	// Initialize the services.
 	var (
-		exampleServiceSvc exampleservice.Service
+		exampleSvc example.Service
 	)
 	{
-		exampleServiceSvc = helloworld.NewExampleService(logger)
+		exampleSvc = helloworld.NewExample(logger)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
 	// potentially running in different processes.
 	var (
-		exampleServiceEndpoints *exampleservice.Endpoints
+		exampleEndpoints *example.Endpoints
 	)
 	{
-		exampleServiceEndpoints = exampleservice.NewEndpoints(exampleServiceSvc)
+		exampleEndpoints = example.NewEndpoints(exampleSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -90,7 +90,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":80"
 			}
-			handleHTTPServer(ctx, u, exampleServiceEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(ctx, u, exampleEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 		{
@@ -112,7 +112,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":8080"
 			}
-			handleGRPCServer(ctx, u, exampleServiceEndpoints, &wg, errc, logger, *dbgF)
+			handleGRPCServer(ctx, u, exampleEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 	default:

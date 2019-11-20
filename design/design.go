@@ -8,7 +8,7 @@ var _ = API("Hello world!", func() {
 	Title("Hello world!")
 	Description("Example API that demonstrates REST & gRPC.")
 	Server("Hello world!", func() {
-		Services("Example Service")
+		Services("example")
 
 		Host("localhost", func() {
 			URI("http://localhost:8000")
@@ -20,16 +20,16 @@ var _ = API("Hello world!", func() {
 // Service defines a group of remotely accessible methods that are hosted together.
 // The service DSL makes it possible to define the methods, their input and output
 // as well as the errors they may return independently of the underlying transport (HTTP or gRPC).
-var _ = Service("Example Service", func() {
-	Description("The calc service performs operations on numbers.")
+var _ = Service("example", func() {
+	Description("The example service returns a hello world message")
 
 	// Method defines a single service method.
-	Method("Say Hello", func() {
+	Method("hello", func() {
 		Result(String)
 
 		HTTP(func() {
 			// route and method declaration
-			GET("/hello/world")
+			GET("/helloworld")
 
 			// define response code
 			Response(StatusOK) // 200
@@ -41,6 +41,15 @@ var _ = Service("Example Service", func() {
 			Response(CodeOK) // 0
 		})
 	})
+})
+
+// We can define multiple services in a single design for some logical separation
+// of responsibilities.
+//
+// this has an impact on code generation, you'll need to run goa example again
+// to get a stub file for the new service (after you've generated the backend)
+var _ = Service("openapi", func() {
+	Description("Download the OpenAPI specification for the hello world API.")
 
 	Files("/openapi.json", "./gen/http/openapi.json")
 })

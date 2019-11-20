@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	exampleservice "github.com/harrytucker/hello-world-goa/gen/example_service"
-	exampleservicesvr "github.com/harrytucker/hello-world-goa/gen/http/example_service/server"
+	example "github.com/harrytucker/hello-world-goa/gen/example"
+	examplesvr "github.com/harrytucker/hello-world-goa/gen/http/example/server"
 	goahttp "goa.design/goa/v3/http"
 	httpmdlwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
@@ -18,7 +18,7 @@ import (
 
 // handleHTTPServer starts configures and starts a HTTP server on the given
 // URL. It shuts down the server if any error is received in the error channel.
-func handleHTTPServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *exampleservice.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
+func handleHTTPServer(ctx context.Context, u *url.URL, exampleEndpoints *example.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
 
 	// Setup goa log adapter.
 	var (
@@ -49,14 +49,14 @@ func handleHTTPServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *
 	// the service input and output data structures to HTTP requests and
 	// responses.
 	var (
-		exampleServiceServer *exampleservicesvr.Server
+		exampleServer *examplesvr.Server
 	)
 	{
 		eh := errorHandler(logger)
-		exampleServiceServer = exampleservicesvr.New(exampleServiceEndpoints, mux, dec, enc, eh)
+		exampleServer = examplesvr.New(exampleEndpoints, mux, dec, enc, eh)
 	}
 	// Configure the mux.
-	exampleservicesvr.Mount(mux, exampleServiceServer)
+	examplesvr.Mount(mux, exampleServer)
 
 	// Wrap the multiplexer with additional middlewares. Middlewares mounted
 	// here apply to all the service endpoints.
@@ -72,7 +72,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *
 	// Start HTTP server using default configuration, change the code to
 	// configure the server as required by your service.
 	srv := &http.Server{Addr: u.Host, Handler: handler}
-	for _, m := range exampleServiceServer.Mounts {
+	for _, m := range exampleServer.Mounts {
 		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
 	}
 

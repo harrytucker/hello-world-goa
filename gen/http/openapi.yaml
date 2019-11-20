@@ -13,12 +13,12 @@ produces:
 - application/xml
 - application/gob
 paths:
-  /hello/world:
+  /helloworld:
     get:
       tags:
-      - Example Service
-      summary: Say Hello Example Service
-      operationId: Example Service#Say Hello
+      - example
+      summary: hello example
+      operationId: example#hello
       responses:
         "200":
           description: OK response.
@@ -29,7 +29,7 @@ paths:
   /openapi.json:
     get:
       summary: Download ./gen/http/openapi.json
-      operationId: Example Service#/openapi.json
+      operationId: openapi#/openapi.json
       responses:
         "200":
           description: File downloaded

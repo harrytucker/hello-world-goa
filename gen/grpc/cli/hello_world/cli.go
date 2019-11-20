@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"os"
 
-	exampleservicec "github.com/harrytucker/hello-world-goa/gen/grpc/example_service/client"
+	examplec "github.com/harrytucker/hello-world-goa/gen/grpc/example/client"
 	goa "goa.design/goa/v3/pkg"
 	grpc "google.golang.org/grpc"
 )
@@ -22,13 +22,13 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `example- -service say- -hello
+	return `example hello
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` example- -service say- -hello` + "\n" +
+	return os.Args[0] + ` example hello` + "\n" +
 		""
 }
 
@@ -36,12 +36,12 @@ func UsageExamples() string {
 // line.
 func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, interface{}, error) {
 	var (
-		exampleServiceFlags = flag.NewFlagSet("example- -service", flag.ContinueOnError)
+		exampleFlags = flag.NewFlagSet("example", flag.ContinueOnError)
 
-		exampleServiceSayHelloFlags = flag.NewFlagSet("say- -hello", flag.ExitOnError)
+		exampleHelloFlags = flag.NewFlagSet("hello", flag.ExitOnError)
 	)
-	exampleServiceFlags.Usage = exampleServiceUsage
-	exampleServiceSayHelloFlags.Usage = exampleServiceSayHelloUsage
+	exampleFlags.Usage = exampleUsage
+	exampleHelloFlags.Usage = exampleHelloUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -58,8 +58,8 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	{
 		svcn = flag.Arg(0)
 		switch svcn {
-		case "example- -service":
-			svcf = exampleServiceFlags
+		case "example":
+			svcf = exampleFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -75,10 +75,10 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	{
 		epn = svcf.Arg(0)
 		switch svcn {
-		case "example- -service":
+		case "example":
 			switch epn {
-			case "say- -hello":
-				epf = exampleServiceSayHelloFlags
+			case "hello":
+				epf = exampleHelloFlags
 
 			}
 
@@ -102,11 +102,11 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	)
 	{
 		switch svcn {
-		case "example- -service":
-			c := exampleservicec.NewClient(cc, opts...)
+		case "example":
+			c := examplec.NewClient(cc, opts...)
 			switch epn {
-			case "say- -hello":
-				endpoint = c.SayHello()
+			case "hello":
+				endpoint = c.Hello()
 				data = nil
 			}
 		}
@@ -118,26 +118,25 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	return endpoint, data, nil
 }
 
-// example- -serviceUsage displays the usage of the example- -service command
-// and its subcommands.
-func exampleServiceUsage() {
-	fmt.Fprintf(os.Stderr, `The calc service performs operations on numbers.
+// exampleUsage displays the usage of the example command and its subcommands.
+func exampleUsage() {
+	fmt.Fprintf(os.Stderr, `The example service returns a hello world message
 Usage:
-    %s [globalflags] example- -service COMMAND [flags]
+    %s [globalflags] example COMMAND [flags]
 
 COMMAND:
-    say- -hello: SayHello implements Say Hello.
+    hello: Hello implements hello.
 
 Additional help:
-    %s example- -service COMMAND --help
+    %s example COMMAND --help
 `, os.Args[0], os.Args[0])
 }
-func exampleServiceSayHelloUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] example- -service say- -hello
+func exampleHelloUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] example hello
 
-SayHello implements Say Hello.
+Hello implements hello.
 
 Example:
-    `+os.Args[0]+` example- -service say- -hello
+    `+os.Args[0]+` example hello
 `, os.Args[0])
 }

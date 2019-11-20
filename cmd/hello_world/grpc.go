@@ -8,9 +8,9 @@ import (
 	"sync"
 
 	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	exampleservice "github.com/harrytucker/hello-world-goa/gen/example_service"
-	example_servicepb "github.com/harrytucker/hello-world-goa/gen/grpc/example_service/pb"
-	exampleservicesvr "github.com/harrytucker/hello-world-goa/gen/grpc/example_service/server"
+	example "github.com/harrytucker/hello-world-goa/gen/example"
+	examplepb "github.com/harrytucker/hello-world-goa/gen/grpc/example/pb"
+	examplesvr "github.com/harrytucker/hello-world-goa/gen/grpc/example/server"
 	grpcmdlwr "goa.design/goa/v3/grpc/middleware"
 	"goa.design/goa/v3/middleware"
 	"google.golang.org/grpc"
@@ -18,7 +18,7 @@ import (
 
 // handleGRPCServer starts configures and starts a gRPC server on the given
 // URL. It shuts down the server if any error is received in the error channel.
-func handleGRPCServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *exampleservice.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
+func handleGRPCServer(ctx context.Context, u *url.URL, exampleEndpoints *example.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
 
 	// Setup goa log adapter.
 	var (
@@ -33,10 +33,10 @@ func handleGRPCServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *
 	// the service input and output data structures to gRPC requests and
 	// responses.
 	var (
-		exampleServiceServer *exampleservicesvr.Server
+		exampleServer *examplesvr.Server
 	)
 	{
-		exampleServiceServer = exampleservicesvr.New(exampleServiceEndpoints, nil)
+		exampleServer = examplesvr.New(exampleEndpoints, nil)
 	}
 
 	// Initialize gRPC server with the middleware.
@@ -48,7 +48,7 @@ func handleGRPCServer(ctx context.Context, u *url.URL, exampleServiceEndpoints *
 	)
 
 	// Register the servers.
-	example_servicepb.RegisterExampleServiceServer(srv, exampleServiceServer)
+	examplepb.RegisterExampleServer(srv, exampleServer)
 
 	for svc, info := range srv.GetServiceInfo() {
 		for _, m := range info.Methods {
