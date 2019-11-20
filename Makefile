@@ -14,3 +14,4 @@ build:
 # remove generated code
 clean:
 	rm -rf gen
+	rm -rf cmd

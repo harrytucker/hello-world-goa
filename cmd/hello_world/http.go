@@ -11,6 +11,7 @@ import (
 
 	example "github.com/harrytucker/hello-world-goa/gen/example"
 	examplesvr "github.com/harrytucker/hello-world-goa/gen/http/example/server"
+	openapisvr "github.com/harrytucker/hello-world-goa/gen/http/openapi/server"
 	goahttp "goa.design/goa/v3/http"
 	httpmdlwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
@@ -50,13 +51,16 @@ func handleHTTPServer(ctx context.Context, u *url.URL, exampleEndpoints *example
 	// responses.
 	var (
 		exampleServer *examplesvr.Server
+		openapiServer *openapisvr.Server
 	)
 	{
 		eh := errorHandler(logger)
 		exampleServer = examplesvr.New(exampleEndpoints, mux, dec, enc, eh)
+		openapiServer = openapisvr.New(nil, mux, dec, enc, eh)
 	}
 	// Configure the mux.
 	examplesvr.Mount(mux, exampleServer)
+	openapisvr.Mount(mux)
 
 	// Wrap the multiplexer with additional middlewares. Middlewares mounted
 	// here apply to all the service endpoints.
@@ -73,6 +77,9 @@ func handleHTTPServer(ctx context.Context, u *url.URL, exampleEndpoints *example
 	// configure the server as required by your service.
 	srv := &http.Server{Addr: u.Host, Handler: handler}
 	for _, m := range exampleServer.Mounts {
+		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
+	}
+	for _, m := range openapiServer.Mounts {
 		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
 	}
 

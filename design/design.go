@@ -8,7 +8,7 @@ var _ = API("Hello world!", func() {
 	Title("Hello world!")
 	Description("Example API that demonstrates REST & gRPC.")
 	Server("Hello world!", func() {
-		Services("example")
+		Services("example", "openapi")
 
 		Host("localhost", func() {
 			URI("http://localhost:8000")
