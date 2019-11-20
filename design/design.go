@@ -36,6 +36,9 @@ var _ = Service("Example Service", func() {
 		})
 
 		GRPC(func() {
+			// route is automatically generated for GRPC endpoints
+			// note the difference between StatusOK and CodeOK for HTTP vs GRPC
+			Response(CodeOK) // 0
 		})
 	})
 
