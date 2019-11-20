@@ -8,9 +8,9 @@ var _ = API("Hello world!", func() {
 	Title("Hello world!")
 	Description("Example API that demonstrates REST & gRPC.")
 	Server("Hello world!", func() {
-		Host("localhost", func() {
-			Services("Example Service")
+		Services("Example Service")
 
+		Host("localhost", func() {
 			URI("http://localhost:8000")
 			URI("grpc://localhost:8080")
 		})

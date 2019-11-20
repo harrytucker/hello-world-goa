@@ -1,0 +1,25 @@
+// Code generated with goa v3.0.7, DO NOT EDIT.
+//
+// Example Service protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/harrytucker/hello-world-goa/design
+
+syntax = "proto3";
+
+package example_service;
+
+option go_package = "example_servicepb";
+
+// The calc service performs operations on numbers.
+service ExampleService {
+	// SayHello implements Say Hello.
+	rpc SayHello (SayHelloRequest) returns (SayHelloResponse);
+}
+
+message SayHelloRequest {
+}
+
+message SayHelloResponse {
+	string field = 1;
+}
