@@ -13,6 +13,7 @@ import (
 
 	helloworld "github.com/harrytucker/hello-world-goa"
 	example "github.com/harrytucker/hello-world-goa/gen/example"
+	ipaddr "github.com/harrytucker/hello-world-goa/gen/ipaddr"
 )
 
 func main() {
@@ -22,7 +23,6 @@ func main() {
 		hostF     = flag.String("host", "localhost", "Server host (valid values: localhost)")
 		domainF   = flag.String("domain", "", "Host domain name (overrides host domain specified in service design)")
 		httpPortF = flag.String("http-port", "", "HTTP port (overrides host HTTP port specified in service design)")
-		grpcPortF = flag.String("grpc-port", "", "gRPC port (overrides host gRPC port specified in service design)")
 		secureF   = flag.Bool("secure", false, "Use secure scheme (https or grpcs)")
 		dbgF      = flag.Bool("debug", false, "Log request and response bodies")
 	)
@@ -39,18 +39,22 @@ func main() {
 	// Initialize the services.
 	var (
 		exampleSvc example.Service
+		ipaddrSvc  ipaddr.Service
 	)
 	{
 		exampleSvc = helloworld.NewExample(logger)
+		ipaddrSvc = helloworld.NewIpaddr(logger)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
 	// potentially running in different processes.
 	var (
 		exampleEndpoints *example.Endpoints
+		ipaddrEndpoints  *ipaddr.Endpoints
 	)
 	{
 		exampleEndpoints = example.NewEndpoints(exampleSvc)
+		ipaddrEndpoints = ipaddr.NewEndpoints(ipaddrSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -90,29 +94,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":80"
 			}
-			handleHTTPServer(ctx, u, exampleEndpoints, &wg, errc, logger, *dbgF)
-		}
-
-		{
-			addr := "grpc://localhost:8080"
-			u, err := url.Parse(addr)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "invalid URL %#v: %s\n", addr, err)
-				os.Exit(1)
-			}
-			if *secureF {
-				u.Scheme = "grpcs"
-			}
-			if *domainF != "" {
-				u.Host = *domainF
-			}
-			if *grpcPortF != "" {
-				h := strings.Split(u.Host, ":")[0]
-				u.Host = h + ":" + *grpcPortF
-			} else if u.Port() == "" {
-				u.Host += ":8080"
-			}
-			handleGRPCServer(ctx, u, exampleEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(ctx, u, exampleEndpoints, ipaddrEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 	default:

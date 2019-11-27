@@ -14,6 +14,7 @@ import (
 	"os"
 
 	examplec "github.com/harrytucker/hello-world-goa/gen/http/example/client"
+	ipaddrc "github.com/harrytucker/hello-world-goa/gen/http/ipaddr/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -24,12 +25,14 @@ import (
 //
 func UsageCommands() string {
 	return `example hello
+ipaddr ip
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` example hello` + "\n" +
+		os.Args[0] + ` ipaddr ip` + "\n" +
 		""
 }
 
@@ -46,9 +49,16 @@ func ParseEndpoint(
 		exampleFlags = flag.NewFlagSet("example", flag.ContinueOnError)
 
 		exampleHelloFlags = flag.NewFlagSet("hello", flag.ExitOnError)
+
+		ipaddrFlags = flag.NewFlagSet("ipaddr", flag.ContinueOnError)
+
+		ipaddrIPFlags = flag.NewFlagSet("ip", flag.ExitOnError)
 	)
 	exampleFlags.Usage = exampleUsage
 	exampleHelloFlags.Usage = exampleHelloUsage
+
+	ipaddrFlags.Usage = ipaddrUsage
+	ipaddrIPFlags.Usage = ipaddrIPUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -67,6 +77,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "example":
 			svcf = exampleFlags
+		case "ipaddr":
+			svcf = ipaddrFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -86,6 +98,13 @@ func ParseEndpoint(
 			switch epn {
 			case "hello":
 				epf = exampleHelloFlags
+
+			}
+
+		case "ipaddr":
+			switch epn {
+			case "ip":
+				epf = ipaddrIPFlags
 
 			}
 
@@ -114,6 +133,13 @@ func ParseEndpoint(
 			switch epn {
 			case "hello":
 				endpoint = c.Hello()
+				data = nil
+			}
+		case "ipaddr":
+			c := ipaddrc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "ip":
+				endpoint = c.IP()
 				data = nil
 			}
 		}
@@ -145,5 +171,28 @@ Hello implements hello.
 
 Example:
     `+os.Args[0]+` example hello
+`, os.Args[0])
+}
+
+// ipaddrUsage displays the usage of the ipaddr command and its subcommands.
+func ipaddrUsage() {
+	fmt.Fprintf(os.Stderr, `Service is the ipaddr service interface.
+Usage:
+    %s [globalflags] ipaddr COMMAND [flags]
+
+COMMAND:
+    ip: Returns the public IP address of the requester
+
+Additional help:
+    %s ipaddr COMMAND --help
+`, os.Args[0], os.Args[0])
+}
+func ipaddrIPUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] ipaddr ip
+
+Returns the public IP address of the requester
+
+Example:
+    `+os.Args[0]+` ipaddr ip
 `, os.Args[0])
 }

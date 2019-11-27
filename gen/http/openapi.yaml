@@ -26,6 +26,20 @@ paths:
             type: string
       schemes:
       - http
+  /ip:
+    get:
+      tags:
+      - ipaddr
+      summary: ip ipaddr
+      description: Returns the public IP address of the requester
+      operationId: ipaddr#ip
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            type: string
+      schemes:
+      - http
   /openapi.json:
     get:
       summary: Download ./gen/http/openapi.json

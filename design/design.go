@@ -8,11 +8,10 @@ var _ = API("Hello world!", func() {
 	Title("Hello world!")
 	Description("Example API that demonstrates REST & gRPC.")
 	Server("Hello world!", func() {
-		Services("example", "openapi")
+		Services("example", "openapi", "ipaddr")
 
 		Host("localhost", func() {
 			URI("http://localhost:8000")
-			URI("grpc://localhost:8080")
 		})
 	})
 })
@@ -34,12 +33,6 @@ var _ = Service("example", func() {
 			// define response code
 			Response(StatusOK) // 200
 		})
-
-		GRPC(func() {
-			// route is automatically generated for GRPC endpoints
-			// note the difference between StatusOK and CodeOK for HTTP vs GRPC
-			Response(CodeOK) // 0
-		})
 	})
 })
 
@@ -52,4 +45,18 @@ var _ = Service("openapi", func() {
 	Description("Download the OpenAPI specification for the hello world API.")
 
 	Files("/openapi.json", "./gen/http/openapi.json")
+})
+
+var _ = Service("ipaddr", func() {
+	Method("ip", func() {
+		Description("Returns the public IP address of the requester")
+
+		Result(String)
+
+		HTTP(func() {
+			GET("/ip")
+
+			Response(StatusOK)
+		})
+	})
 })
